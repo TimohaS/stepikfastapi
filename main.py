@@ -2,10 +2,15 @@ from fastapi import FastAPI, Body
 from fastapi.responses import FileResponse, JSONResponse
 import uvicorn
 
-from app.models.user import user, User, IsAdultUser
+
 from app.models.feedback import Feeback, FeedbackResponce
+from app.routers.product import product_router
+from app.routers.user import user_router
 
 app = FastAPI()
+
+app.include_router(product_router)
+app.include_router(user_router)
 
 
 @app.get('/', response_class=FileResponse)
@@ -16,19 +21,6 @@ async def root():
 @app.post('/calculate', response_class=JSONResponse)
 async def root(num1: int = Body(embed=True), num2: int = Body(embed=True)):
     return JSONResponse(f'result: {num1 + num2}')
-
-
-@app.get('/users', response_model=User)
-async def root():
-    return user
-
-
-@app.post('/user', response_model=IsAdultUser)
-async def root(user: User):
-    responce = IsAdultUser(**user.model_dump())
-    responce.is_adult = True if user.age >= 18 else False
-
-    return responce
 
 
 @app.post('/feedback', response_model=FeedbackResponce)
